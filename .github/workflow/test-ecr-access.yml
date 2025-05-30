@@ -1,5 +1,5 @@
 name: Test ECR Access
-##
+
 on:
   workflow_dispatch:
   pull_request:
@@ -9,16 +9,12 @@ on:
 
 env:
   AWS_REGION: eu-west-1
-  ECR_REPOSITORY: flask-tp-app   # or any repo name in your account
+  ECR_REPOSITORY: flask-tp-app
 
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout (not really needed here)
-        uses: actions/checkout@v3
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -27,17 +23,15 @@ jobs:
           aws-region:            ${{ env.AWS_REGION }}
 
       - name: Verify ECR repo exists
-        # This will succeed (exit 0) if the repo is there, or fail (non-0) if it isn’t
         run: |
           aws ecr describe-repositories \
             --repository-names "$ECR_REPOSITORY" \
             --output table
 
       - name: Docker login to ECR
-        # Proves that docker can authenticate
         run: |
           aws ecr get-login-password \
             --region "$AWS_REGION" | \
           docker login \
             --username AWS \
-            --password-stdin "${{ steps.configure-aws-credentials.outputs.registry }}"
+            --password-stdin "${{ steps.login-ecr.outputs.registry }}"
