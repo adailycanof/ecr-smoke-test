@@ -7,3 +7,5 @@ Smoke Testing GHA connectivity to ECR
 - Add the following content to the file:
 ```yaml
 name: 
+
+fix workflow name
